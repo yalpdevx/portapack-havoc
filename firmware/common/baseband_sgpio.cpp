@@ -295,6 +295,18 @@ constexpr P_OUT_CFG data_p_out_cfg(
 		;
 }
 
+static const sgpio_resources_t sgpio_resources = {
+	.base = { .clk = &LPC_CGU->BASE_PERIPH_CLK, .stat = &LPC_CCU1->BASE_STAT, .stat_mask = (1 << 6) },
+	.branch = { .cfg = &LPC_CCU1->CLK_PERIPH_SGPIO_CFG, .stat = &LPC_CCU1->CLK_PERIPH_SGPIO_STAT },
+	.reset = { .output_index = 57 },
+};
+
+void SGPIO::init() {
+	base_clock_enable(&sgpio_resources.base);
+	branch_clock_enable(&sgpio_resources.branch);
+	peripheral_reset(&sgpio_resources.reset);
+}
+
 void SGPIO::configure(const Direction direction) {
 	disable_all_slice_counters();
 
