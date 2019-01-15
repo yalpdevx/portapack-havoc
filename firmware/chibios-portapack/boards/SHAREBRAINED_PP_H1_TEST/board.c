@@ -28,10 +28,7 @@ const PALConfig pal_default_config = {
   .P = {
     { .data = 0, .dir = 0 },
     { .data = 0, .dir = 0 },
-    {
-        .data = 0,
-        .dir = (1 << 8) | (1 << 2) | (1 << 1)
-    },
+    { .data = 0, .dir = 0 },
     { .data = 0, .dir = 0 },
     { .data = 0, .dir = 0 },
     { .data = 0, .dir = 0 },

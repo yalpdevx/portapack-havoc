@@ -54,9 +54,11 @@ bool update_if_necessary(
 		return false;
 	}
 
-	cpld.sample();
-	cpld.bypass();
-	cpld.enable();
+	/* Enter ISP:
+	 * Ensures that the I/O pins transition smoothly from user mode to ISP
+	 * mode. All pins are tri-stated.
+	 */
+	cpld.enter_isp();
 
 	/* If silicon ID doesn't match, there's a serious problem. Leave CPLD
 	 * in passive state.
@@ -77,13 +79,7 @@ bool update_if_necessary(
 	 * passive (ISP) state.
 	 */
 	if( ok ) {
-		cpld.disable();
-		cpld.bypass();
-
-		/* Initiate SRAM reload from flash we just programmed. */
-		cpld.sample();
-		cpld.clamp();
-		cpld.disable();
+		cpld.exit_isp();
 	}
 
 	return ok;

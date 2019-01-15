@@ -33,8 +33,6 @@
 
 namespace si5351 {
 
-using reg_t = uint8_t;
-
 namespace Register {
 	enum {
 		DeviceStatus = 0,
@@ -98,101 +96,41 @@ namespace DeviceStatus {
 	};
 }
 
-struct ClockControl {
-	enum ClockCurrentDrive {
-		_2mA = 0b00,
-		_4mA = 0b01,
-		_6mA = 0b10,
-		_8mA = 0b11,
+namespace ClockControl {
+	using Type = uint8_t;
+
+	enum {
+		CLK_IDRV_Mask     = (0b11 << 0),
+		CLK_IDRV_2mA      = (0b00 << 0),
+		CLK_IDRV_4mA      = (0b01 << 0),
+		CLK_IDRV_6mA      = (0b10 << 0),
+		CLK_IDRV_8mA      = (0b11 << 0),
+
+		CLK_SRC_Mask      = (0b11 << 2),
+		CLK_SRC_XTAL      = (0b00 << 2),
+		CLK_SRC_CLKIN     = (0b01 << 2),
+		CLK_SRC_MS_Group  = (0b10 << 2),
+		CLK_SRC_MS_Self   = (0b11 << 2),
+
+		CLK_INV_Mask      = (1 << 4),
+		CLK_INV_Normal    = (0 << 4),
+		CLK_INV_Invert    = (1 << 4),
+
+		MS_SRC_Mask       = (1 << 5),
+		MS_SRC_PLLA       = (0 << 5),
+		MS_SRC_PLLB       = (1 << 5),
+
+		MS_INT_Mask       = (1 << 6),
+		MS_INT_Fractional = (0 << 6),
+		MS_INT_Integer    = (1 << 6),
+
+		CLK_PDN_Mask      = (1 << 7),
+		CLK_PDN_Power_On  = (0 << 7),
+		CLK_PDN_Power_Off = (1 << 7),
 	};
+}
 
-	enum ClockSource {
-		Xtal = 0b00,
-		CLKIN = 0b01,
-		MS_Group = 0b10,
-		MS_Self = 0b11,
-	};
-
-	enum ClockInvert {
-		Normal = 0,
-		Invert = 1,
-	};
-
-	enum MultiSynthSource {
-		PLLA = 0,
-		PLLB = 1,
-	};
-
-	enum MultiSynthMode {
-		Fractional = 0,
-		Integer = 1,
-	};
-
-	enum ClockPowerDown {
-		Power_On = 0,
-		Power_Off = 1,
-	};
-
-	reg_t CLK_IDRV : 2;
-	reg_t CLK_SRC  : 2;
-	reg_t CLK_INV  : 1;
-	reg_t MS_SRC   : 1;
-	reg_t MS_INT   : 1;
-	reg_t CLK_PDN  : 1;
-
-	constexpr ClockControl(
-		ClockCurrentDrive clk_idrv,
-		ClockSource clk_src,
-		ClockInvert clk_inv,
-		MultiSynthSource ms_src,
-		MultiSynthMode ms_int,
-		ClockPowerDown clk_pdn
-	) : CLK_IDRV(clk_idrv),
-		CLK_SRC(clk_src),
-		CLK_INV(clk_inv),
-		MS_SRC(ms_src),
-		MS_INT(ms_int),
-		CLK_PDN(clk_pdn)
-	{
-	}
-
-	ClockControl clk_src(const ClockSource value) const {
-		auto result = *this;
-		result.CLK_SRC = value;
-		return result;
-	}
-	
-	ClockControl ms_src(const MultiSynthSource value) const {
-		auto result = *this;
-		result.MS_SRC = value;
-		return result;
-	}
-
-	ClockControl clk_pdn(const ClockPowerDown value) const {
-		auto result = *this;
-		result.CLK_PDN = value;
-		return result;
-	}
-
-	constexpr operator reg_t() {
-		return *reinterpret_cast<reg_t*>(this);
-	}
-
-	static constexpr ClockControl power_off() {
-		return {
-			ClockCurrentDrive::_2mA,
-			ClockSource::Xtal,
-			ClockInvert::Normal,
-			MultiSynthSource::PLLA,
-			MultiSynthMode::Fractional,
-			ClockPowerDown::Power_Off,
-		};
-	}
-};
-
-static_assert(sizeof(ClockControl) == 1, "ClockControl size is not eight bits");
-
-using ClockControls = std::array<ClockControl, 8>;
+using ClockControls = std::array<ClockControl::Type, 8>;
 
 namespace CrystalInternalLoadCapacitance {
 	using Type = uint8_t;
@@ -351,10 +289,10 @@ public:
 
 	constexpr Si5351(I2C& bus, I2C::address_t address) :
 		_clock_control({
-			ClockControl::power_off(), ClockControl::power_off(),
-			ClockControl::power_off(), ClockControl::power_off(),
-			ClockControl::power_off(), ClockControl::power_off(),
-			ClockControl::power_off(), ClockControl::power_off()
+			ClockControl::CLK_PDN_Power_Off, ClockControl::CLK_PDN_Power_Off,
+			ClockControl::CLK_PDN_Power_Off, ClockControl::CLK_PDN_Power_Off,
+			ClockControl::CLK_PDN_Power_Off, ClockControl::CLK_PDN_Power_Off,
+			ClockControl::CLK_PDN_Power_Off, ClockControl::CLK_PDN_Power_Off
 		}),
 		_bus(bus),
 		_address(address),
@@ -363,10 +301,6 @@ public:
 	}
 
 	void reset();
-
-	uint8_t device_status() {
-		return read_register(Register::DeviceStatus);
-	}
 
 	void wait_for_device_ready() {
 		while(device_status() & 0x80);
@@ -381,8 +315,7 @@ public:
 	}
 
 	void reset_plls() {
-		// Datasheet recommends value 0xac, though the low nibble bits are not defined in AN619.
-		write_register(Register::PLLReset, 0xac);
+		write_register(Register::PLLReset, 0xa0);
 	}
 
 	regvalue_t read_register(const uint8_t reg);
@@ -440,18 +373,18 @@ public:
 		update_all_clock_control();
 	}
 
-	void set_clock_control(const size_t n, const ClockControl clock_control) {
+	void set_clock_control(const size_t n, const ClockControl::Type clock_control) {
 		_clock_control[n] = clock_control;
 		write_register(Register::CLKControl_Base + n, _clock_control[n]);
 	}
 
 	void enable_clock(const size_t n) {
-		_clock_control[n].CLK_PDN = ClockControl::ClockPowerDown::Power_On;
+		_clock_control[n] &= ~ClockControl::CLK_PDN_Mask;
 		write_register(Register::CLKControl_Base + n, _clock_control[n]);
 	}
 
 	void disable_clock(const size_t n) {
-		_clock_control[n].CLK_PDN = ClockControl::ClockPowerDown::Power_Off;
+		_clock_control[n] |= ClockControl::CLK_PDN_Mask;
 		write_register(Register::CLKControl_Base + n, _clock_control[n]);
 	}
 	
@@ -468,26 +401,21 @@ public:
 	}
 
 private:
-	ClockControls _clock_control;
+	std::array<uint8_t, 8> _clock_control;
 	I2C& _bus;
 	const I2C::address_t _address;
 	uint8_t _output_enable;
+
+	uint8_t device_status() {
+		return read_register(Register::DeviceStatus);
+	}
 	
 	void update_output_enable_control() {
 		write_register(Register::OutputEnableControl, ~_output_enable);
 	}
 
 	void update_all_clock_control() {
-		write_registers(Register::CLKControl_Base, std::array<reg_t, 8> { {
-			_clock_control[0],
-			_clock_control[1],
-			_clock_control[2],
-			_clock_control[3],
-			_clock_control[4],
-			_clock_control[5],
-			_clock_control[6],
-			_clock_control[7],
-		} });
+		write_registers(Register::CLKControl_Base, _clock_control);
 	}
 };
 

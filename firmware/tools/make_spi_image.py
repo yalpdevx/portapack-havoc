@@ -26,7 +26,7 @@ import sys
 usage_message = """
 PortaPack SPI flash image generator
 
-Usage: <command> <application_path> <baseband_path> <output_path>
+Usage: <command> <bootstrap_path> <baseband_path> <application_path> <output_path>
        Where paths refer to the .bin files for each component project.
 """
 
@@ -41,27 +41,33 @@ def write_image(data, path):
 	f.write(data)
 	f.close()
 
-if len(sys.argv) != 4:
+if len(sys.argv) != 5:
 	print(usage_message)
 	sys.exit(-1)
 
-application_image = read_image(sys.argv[1])
+bootstrap_image = read_image(sys.argv[1])
 baseband_image = read_image(sys.argv[2])
-output_path = sys.argv[3]
+application_image = read_image(sys.argv[3])
+output_path = sys.argv[4]
 
 spi_size = 1048576
 
 images = (
 	{
-		'name': 'application',
-		'data': application_image,
-		'size': 0x80000, #len(application_image),
+		'name': 'bootstrap',
+		'data': bootstrap_image,
+		'size': 0x10000,
 	},
 	{
 		'name': 'baseband',
 		'data': baseband_image,
-		'size': 0x80000,
+		'size': 0x70000,
 	},
+	{
+		'name': 'application',
+		'data': application_image,
+		'size': len(application_image),
+	}
 )
 
 spi_image = bytearray()

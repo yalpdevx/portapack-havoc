@@ -39,10 +39,10 @@ void Si5351::reset() {
 	write_register(Register::PLLInputSource, 0x00);
 
 	_clock_control = {
-		ClockControl::power_off(), ClockControl::power_off(),
-		ClockControl::power_off(), ClockControl::power_off(),
-		ClockControl::power_off(), ClockControl::power_off(),
-		ClockControl::power_off(), ClockControl::power_off()
+		ClockControl::CLK_PDN_Power_Off, ClockControl::CLK_PDN_Power_Off,
+		ClockControl::CLK_PDN_Power_Off, ClockControl::CLK_PDN_Power_Off,
+		ClockControl::CLK_PDN_Power_Off, ClockControl::CLK_PDN_Power_Off,
+		ClockControl::CLK_PDN_Power_Off, ClockControl::CLK_PDN_Power_Off
 	};
 	update_all_clock_control();
 
