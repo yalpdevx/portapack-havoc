@@ -125,6 +125,12 @@ public:
 	std::string title() const override { return "Radio settings"; };
 
 private:
+	const Style style_text {
+		.font = font::fixed_8x16,
+		.background = Color::black(),
+		.foreground = Color::light_grey(),
+	};
+
 	Text label_source {
 		{ 0, 1 * 16, 17 * 8, 16 },
 		"Reference Source:"
