@@ -198,8 +198,8 @@ public:
 
 private:
 	Text text_info {
-		{ 76, 284, 20 * 8, 16 },
-		"GIT " GIT_REVISION
+		{ 4*8, 284, 20 * 8, 16 },
+		"Version " VERSION_STRING
 	};
 	
 	Button button_done {
