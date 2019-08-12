@@ -25,6 +25,7 @@
 #include "ui_navigation.hpp"
 #include "ui_transmitter.hpp"
 #include "ui_font_fixed_8x16.hpp"
+#include "rfm69.hpp"
 
 #include "message.hpp"
 #include "transmitter_model.hpp"
@@ -50,43 +51,131 @@ private:
 	
 	tx_modes tx_mode = IDLE;
 	
+    RFM69 rfm69 { 5, 0x2DD4, true, true };
+    
 	uint32_t frame_size { 0 };
 	uint32_t repeats { 0 };
 	uint32_t channel_index { 0 };
+	std::string pseudo { "ABCDEF" };
 	
 	rf::Frequency channels[3] = { 868067000, 868183000, 868295000 };
 
 	void start_tx();
 	void stop_tx();
-	void generate_frame();
+	
+	void generate_lge_frame(const uint8_t command, std::vector<uint8_t>& data) {
+		generate_lge_frame(command, 0xFFFF, 0xFFFF, data);
+	}
+	void generate_lge_frame(const uint8_t command, const uint16_t address_a, const uint16_t address_b, std::vector<uint8_t>& data);
+	void generate_frame_touche();
+	void generate_frame_pseudo();
+	void generate_frame_equipe();
+	void generate_frame_broadcast_pseudo();
+	void generate_frame_start();
+	void generate_frame_gameover();
+	void generate_frame_collier();
+	
 	void on_tx_progress(const uint32_t progress, const bool done);
 	
 	Labels labels {
-		{ { 7 * 8, 4 * 8 }, "NO FUN ALLOWED !", Color::red() },
-		{ { 11 * 8, 8 * 8 }, "Zone:", Color::light_grey() }
+		//{ { 7 * 8, 1 * 8 }, "NO FUN ALLOWED !", Color::red() },
+		{ { 1 * 8, 1 * 8 }, "Trame:", Color::light_grey() },
+		{ { 1 * 8, 3 * 8 }, "Salle:", Color::light_grey() },
+		{ { 14 * 8, 3 * 8 }, "Texte:", Color::light_grey() },
+		{ { 0 * 8, 5 * 8 }, "Equipe:", Color::light_grey() },
+		{ { 0 * 8, 7 * 8 }, "Joueur:", Color::light_grey() },
+		{ { 0 * 8, 10 * 8 }, "Collier:", Color::light_grey() },
+		{ { 4 * 8, 12 * 8 }, "ID:", Color::light_grey() },
+		{ { 3 * 8, 14 * 8 }, "Pow:  /10", Color::light_grey() },
+		{ { 1 * 8, 16 * 8 }, "Duree:  x100ms", Color::light_grey() }
 	};
 	
-	NumberField field_zone {
-		{ 16 * 8, 8 * 8 },
-		1,
-		{ 1, 6 },
-		16,
-		'0'
+	OptionsField options_trame {
+		{ 7 * 8, 1 * 8 },
+		13,
+		{
+			{ "Touche", 0 },
+			{ "Set pseudo", 1 },
+			{ "Set equipe", 2 },
+			{ "Brdcst pseudo", 3 },
+			{ "Start", 4 },
+			{ "Game over", 5 },
+			{ "Set collier", 6 }
+		}
 	};
 	
 	Checkbox checkbox_channels {
-		{ 7 * 8, 14 * 8 },
-		12,
-		"All channels"
+		{ 20 * 8, 1 * 8 },
+		7,
+		"All ch.",
+		true
 	};
 	
-	Text text_messagea {
-		{ 0 * 8, 10 * 16, 30 * 8, 16 },
-		""
+	NumberField field_salle {
+		{ 7 * 8, 3 * 8 },
+		1,
+		{ 1, 2 },
+		1,
+		'0'
 	};
-	Text text_messageb {
-		{ 0 * 8, 11 * 16, 30 * 8, 16 },
-		""
+	
+	Button button_texte {
+		{ 14 * 8, 5 * 8, 16 * 8, 3 * 8 },
+		"ABCDEF"
+	};
+	
+	NumberField field_equipe {
+		{ 7 * 8, 5 * 8 },
+		1,
+		{ 1, 6 },
+		1,
+		'0'
+	};
+	
+	NumberField field_joueur {
+		{ 7 * 8, 7 * 8 },
+		2,
+		{ 1, 50 },
+		1,
+		'0'
+	};
+	
+	Checkbox checkbox_heartbeat {
+		{ 17 * 8, 12 * 8 },
+		9,
+		"Heartbeat",
+		true
+	};
+	Checkbox checkbox_rxtick {
+		{ 17 * 8, 15 * 8 },
+		7,
+		"RX tick",
+		true
+	};
+	NumberField field_id {
+		{ 7 * 8, 12 * 8 },
+		1,
+		{ 1, 2 },
+		1,
+		'0'
+	};
+	NumberField field_power {
+		{ 7 * 8, 14 * 8 },
+		2,
+		{ 1, 10 },
+		1,
+		'0'
+	};
+	NumberField field_duration {
+		{ 7 * 8, 16 * 8 },
+		2,
+		{ 1, 25 },
+		1,
+		'0'
+	};
+	
+	Console console {
+		{ 0, 18 * 8, 30 * 8, 7 * 16 }
 	};
 	
 	TransmitterView tx_view {
