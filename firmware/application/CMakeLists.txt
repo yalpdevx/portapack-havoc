@@ -206,6 +206,7 @@ set(CPPSRC
 	ui/ui_font_fixed_8x16.cpp
 	ui/ui_geomap.cpp
 	ui/ui_menu.cpp
+	ui/ui_btngrid.cpp
 	ui/ui_receiver.cpp
 	ui/ui_rssi.cpp
 	ui/ui_spectrum.cpp
