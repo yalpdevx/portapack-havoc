@@ -78,7 +78,9 @@ void ScannerThread::run() {
 }
 
 void ScannerView::handle_retune(uint32_t i) {
-	text_cycle.set(to_string_dec_uint(i) + "/" + to_string_dec_uint(frequency_list.size()));
+	text_cycle.set(	to_string_dec_uint(i) + "/" +
+					to_string_dec_uint(frequency_list.size()) + " : " +
+					to_string_dec_uint(frequency_list[i]) );
 }
 
 void ScannerView::focus() {
@@ -160,7 +162,7 @@ ScannerView::ScannerView(
 	receiver_model.set_baseband_bandwidth(1750000);
 	receiver_model.enable();
 	receiver_model.set_squelch_level(0);
-	//receiver_model.set_nbfm_configuration(field_bw.selected_index_value());
+	receiver_model.set_nbfm_configuration(field_bw.selected_index());
 	audio::output::unmute();
 	
 	// TODO: Scanning thread here
