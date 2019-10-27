@@ -129,7 +129,7 @@ bool AlphanumView::on_encoder(const EncoderEvent delta) {
 	if (focused_button < 0) {
 		focused_button = buttons.size() - 1;
 	}
-	else if ((uint16_t)focused_button >= buttons.size()) {
+	else if (focused_button >= (int16_t)buttons.size()) {
 		focused_button = 0;
 	}
 	buttons[focused_button].focus();
