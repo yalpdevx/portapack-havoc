@@ -310,7 +310,7 @@ FrequencyManagerView::FrequencyManagerView(
 		nav.pop();
 	};
 	
-	change_category(0);
+	change_category(last_category_id);
 	refresh_list();
 	
 	on_select_frequency = [this]() {
