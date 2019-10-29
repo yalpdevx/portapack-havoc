@@ -424,7 +424,7 @@ public:
 
 private:
 	std::string text_;
-	Color color_ = Color::dark_cyan();
+	Color color_ { Color::dark_cyan() };
 	const Bitmap* bitmap_;
 };
 

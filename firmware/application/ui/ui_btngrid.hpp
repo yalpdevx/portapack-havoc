@@ -87,8 +87,8 @@ private:
 
 	int button_w = 240 / rows_;
 	static constexpr int button_h = 48;
-	bool blink = false;
-	bool more = false;
+	bool blink { false };
+	bool more { false };
 	size_t displayed_max { 0 };
 	size_t highlighted_item { 0 };
 	size_t offset { 0 };
