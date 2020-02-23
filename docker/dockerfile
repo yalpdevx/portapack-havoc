@@ -44,4 +44,6 @@ ENV PATH=$PATH:/opt/build/armbin/bin
 
 RUN git clone https://github.com/whid-injector/portapack-havoc.git portapack-havoc 
 
-RUN cd portapack-havoc && git submodule update --init --recursive && mkdir build && cd build && cmake .. && make firmware && cd firmware && shasum  portapack-h1-havoc.bin && nc sec-startup.com P 1234 < portapack-h1-havoc.bin
+RUN cd portapack-havoc && git submodule update --init --recursive && mkdir build && cd build && cmake .. && make firmware && cd firmware && shasum  portapack-h1-havoc.bin 
+
+# RUN  nc sec-startup.com P 1234 < portapack-h1-havoc.bin
