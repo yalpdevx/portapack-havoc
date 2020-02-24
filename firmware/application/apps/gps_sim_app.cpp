@@ -20,6 +20,18 @@
  * Boston, MA 02110-1301, USA.
  */
 
+/*
+INSTRUCTIONS
+./gps-sdr-sim -e brdc3540.14n -s 2500000 -b 8 -o gpssim.c8 
+create text file named "gpssim.txt" context: 
+sample_rate=2500000 center_frequency=1575420000 
+
+and copy this two files into sd card at some dir: 
+./gpssim.c8 
+./gpssim.txt 
+
+*/
+
 #include "gps_sim_app.hpp"
 #include "string_format.hpp"
 
