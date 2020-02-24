@@ -22,6 +22,9 @@
 
 /*
 INSTRUCTIONS
+https://github.com/osqzss/gps-sdr-sim/wiki/Real-Time-Streaming-to-HackRF
+https://slowmin.com/fake-gps-with-a-hackrf-one/
+
 ./gps-sdr-sim -e brdc3540.14n -s 2500000 -b 8 -o gpssim.c8 
 create text file named "gpssim.txt" context: 
 sample_rate=2500000 center_frequency=1575420000 
